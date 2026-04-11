@@ -486,95 +486,10 @@ class BenchmarkIntelligenceAgent:
         Returns:
             List of fetched document dictionaries
         """
-        # Check if parallelization is enabled
-        parallel_config = self.config.get("parallelization", {})
-        if not parallel_config.get("enabled", True):
-            logger.debug("Parallel fetching disabled, using sequential fetch")
-            return self._fetch_documents_sequential(model_id, model, model_card_data)
-
-        max_concurrent = parallel_config.get("max_concurrent_document_fetches", 5)
-        timeout_per_doc = parallel_config.get("timeout_per_document_seconds", 60)
-
-        # Import the enhanced fetch functions
-        try:
-            from .tools.fetch_docs_enhanced import (
-                fetch_model_card,
-                fetch_arxiv_paper,
-                fetch_github_pdf,
-                fetch_blog_posts,
-            )
-        except ImportError:
-            logger.warning("Enhanced fetch functions not available, skipping additional docs")
-            return []
-
-        # Prepare document URLs to fetch
-        # Note: Model card is already fetched, so we prepare other documents
-        model_name = model_id.split("/")[-1] if "/" in model_id else model_id
-        lab_name = model.get("author", model_id.split("/")[0] if "/" in model_id else "")
-
-        # Create a simple fetch wrapper that matches the expected signature
-        def fetch_document(url: str, doc_type: str, **params) -> Optional[Dict[str, Any]]:
-            """Wrapper to fetch a single document."""
-            try:
-                if doc_type == "arxiv_paper":
-                    # For arXiv, we need model card reference
-                    return fetch_arxiv_paper(
-                        model_name=model_name,
-                        lab_name=lab_name,
-                        model_card_doc={
-                            "content": model_card_data.get("content", ""),
-                            "metadata": model_card_data.get("metadata", {}),
-                        },
-                        config=self.config,
-                    )
-                elif doc_type == "github_pdf":
-                    return fetch_github_pdf(
-                        model_name=model_name,
-                        lab_name=lab_name,
-                        model_card_doc={
-                            "content": model_card_data.get("content", ""),
-                            "metadata": model_card_data.get("metadata", {}),
-                        },
-                        config=self.config,
-                    )
-                elif doc_type == "blog":
-                    # Fetch blog posts returns a list, get first one
-                    blogs = fetch_blog_posts(
-                        model_name=model_name,
-                        lab_name=lab_name,
-                        config=self.config,
-                        max_posts=params.get("max_posts", 1),
-                    )
-                    return blogs[0] if blogs else None
-                else:
-                    logger.warning(f"Unknown document type: {doc_type}")
-                    return None
-            except Exception as e:
-                logger.debug(f"Failed to fetch {doc_type}: {e}")
-                return None
-
-        # Prepare document specifications for parallel fetching
-        # We fetch: arXiv paper, GitHub PDF, and blog post(s)
-        doc_specs = [
-            {"url": "arxiv_search", "doc_type": "arxiv_paper", "fetch_params": {}},
-            {"url": "github_search", "doc_type": "github_pdf", "fetch_params": {}},
-            {"url": "blog_search", "doc_type": "blog", "fetch_params": {"max_posts": 1}},
-        ]
-
-        logger.debug(
-            f"Fetching {len(doc_specs)} document types in parallel "
-            f"(max {max_concurrent} concurrent)"
-        )
-
-        # Fetch documents in parallel
-        docs = fetch_documents_parallel(
-            document_urls=doc_specs,
-            fetch_function=fetch_document,
-            max_concurrent=max_concurrent,
-            timeout_per_doc=timeout_per_doc,
-        )
-
-        return docs
+        # Note: Parallel fetching interface mismatch - using sequential fetch for now
+        # TODO: Implement proper parallel document fetching
+        logger.debug("Using sequential fetch for documents")
+        return self._fetch_documents_sequential(model_id, model, model_card_data)
 
     def _fetch_documents_sequential(
         self,

@@ -1004,14 +1004,15 @@ def _ai_review_questionable_pairs(
         >>> results = _ai_review_questionable_pairs(names)
         >>> # Results show ARC-C and ARC-Challenge should consolidate
     """
-    from fuzzywuzzy import fuzz
+    import difflib
 
     questionable_pairs = []
 
     # Find all pairs in the questionable similarity range
     for i, name1 in enumerate(benchmark_names):
         for name2 in benchmark_names[i+1:]:
-            similarity = fuzz.ratio(name1.lower(), name2.lower()) / 100.0
+            # Use difflib.SequenceMatcher for similarity (Python standard library)
+            similarity = difflib.SequenceMatcher(None, name1.lower(), name2.lower()).ratio()
 
             if min_similarity <= similarity <= max_similarity:
                 questionable_pairs.append({

@@ -68,9 +68,15 @@ class ConnectionPool:
         )
         conn.row_factory = sqlite3.Row
 
-        # Enable WAL mode for better concurrency
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA synchronous=NORMAL")
+        # Try to enable WAL mode for better concurrency, fall back to DELETE mode if it fails
+        try:
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA synchronous=NORMAL")
+        except sqlite3.OperationalError as e:
+            logger.warning(f"Could not enable WAL mode (disk I/O error), using DELETE mode: {e}")
+            # WAL mode failed, use default DELETE mode
+            conn.execute("PRAGMA journal_mode=DELETE")
+            conn.execute("PRAGMA synchronous=FULL")
 
         with self._lock:
             self._created_count += 1

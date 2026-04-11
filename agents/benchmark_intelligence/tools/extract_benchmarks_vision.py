@@ -424,7 +424,7 @@ def extract_benchmarks_from_pdf(
         pdf_images = _extract_images_from_pdf(pdf_content)
 
         if not pdf_images:
-            logger.info("No images found in PDF, using text extraction")
+            logger.info("No images found in PDF")
         else:
             # Filter images to only those in relevant pages
             relevant_images = [
@@ -433,7 +433,7 @@ def extract_benchmarks_from_pdf(
             ]
 
             if not relevant_images:
-                logger.info("No images in relevant sections, using text extraction")
+                logger.info("No images in relevant sections")
             else:
                 vision_successful = True
                 logger.info(
@@ -479,12 +479,11 @@ def extract_benchmarks_from_pdf(
                     f"Vision extraction complete: Analyzed {chunks_processed}/{len(relevant_images)} images"
                 )
 
-        # Fall back to text extraction if no images found
-        if not vision_successful:
-            # Text mode: Extract text and use standard text extraction
-            logger.info(f"Using text-based extraction for {len(page_chunks)} chunks")
+        # Always perform text extraction (in addition to vision extraction if images were found)
+        # Text extraction catches benchmarks in prose that vision might miss
+        logger.info(f"Performing text-based extraction for {len(page_chunks)} chunks")
 
-            with pdfplumber.open(io.BytesIO(pdf_content)) as pdf:
+        with pdfplumber.open(io.BytesIO(pdf_content)) as pdf:
                 for chunk_idx, chunk_pages in enumerate(page_chunks, 1):
                     try:
                         # Extract text from this chunk
@@ -560,12 +559,13 @@ def extract_benchmarks_from_pdf(
         result["metadata"]["document_source"] = source_name or "unknown"
         result["metadata"]["extraction_date"] = datetime.utcnow().isoformat()
         result["metadata"]["total_benchmarks"] = len(result.get("benchmarks", []))
-        result["metadata"]["source_type"] = "pdf_vision" if vision_successful else "pdf_text"
+        result["metadata"]["source_type"] = "pdf_vision_and_text" if vision_successful else "pdf_text"
         result["metadata"]["extraction_method"] = (
-            "claude_vision_api_from_embedded_images" if vision_successful
+            "claude_vision_api_from_images_plus_text_extraction" if vision_successful
             else "claude_text_extraction_with_section_filtering_and_chunking"
         )
         result["metadata"]["vision_used"] = vision_successful
+        result["metadata"]["text_extraction_used"] = True
         result["metadata"]["total_pages"] = total_pages
         result["metadata"]["pages_processed"] = len(relevant_pages)
         result["metadata"]["sections_found"] = len(sections)
@@ -582,9 +582,9 @@ def extract_benchmarks_from_pdf(
             result["metadata"]["chunks_failed"] = chunks_failed
             result["metadata"]["chunk_size"] = chunk_size
 
-        extraction_mode = "vision AI (embedded images)" if vision_successful else "text-based AI"
+        extraction_mode = "vision AI (embedded images) + text extraction" if vision_successful else "text-based AI extraction"
         logger.info(
-            f"Extracted {len(result['benchmarks'])} benchmarks from PDF using {extraction_mode} extraction "
+            f"Extracted {len(result['benchmarks'])} benchmarks from PDF using {extraction_mode} "
             f"({len(relevant_pages)}/{total_pages} pages)"
         )
 
