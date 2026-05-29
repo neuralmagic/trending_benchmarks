@@ -8,15 +8,13 @@
 
 ## 📊 Latest Report
 
-**[View Latest Benchmark Report →](agents/benchmark_intelligence/reports/trending_benchmarks_20260411_000851.md)**
+**[View Latest Benchmark Report →](agents/benchmark_intelligence/reports/trending_benchmarks_20260529_231127.md)**
 
-**Key Findings** (2026-04-11):
-- **263 unique benchmarks** discovered from 11,281 mentions
-- **167 models** analyzed from 18 major labs
+**Key Findings** (2026-05-29):
+- **282 unique benchmarks** discovered from 164 models
+- **164 models** analyzed from 18 major labs
 - **Vision + Text extraction** - both sources used for complete coverage
-- **Top benchmarks**: MMLU Pro (57 models), MMLU (57), GPQA Diamond (48)
-- **14 categories**: Vision (61 benchmarks), Coding (37), Knowledge (25), Math (24)
-- **Unicode normalization**: τ²-Bench = τ2-Bench merged successfully
+- **14 categories**: Vision (155 benchmarks), Coding (26), Math (20), Agent (18), Reasoning (16), Retrieval (12), Alignment (10)
 ---
 
 ## 🎯 What This Does
@@ -119,7 +117,7 @@ python -m agents.benchmark_intelligence.main generate
 
 | Resource | Description |
 |----------|-------------|
-| **[Latest Report](agents/benchmark_intelligence/reports/trending_benchmarks_20260411_000851.md)** | Most recent benchmark intelligence |
+| **[Latest Report](agents/benchmark_intelligence/reports/trending_benchmarks_20260529_231127.md)** | Most recent benchmark intelligence |
 | **[All Reports](agents/benchmark_intelligence/reports/)** | Historical snapshots |
 | **[SQLite Database](benchmark_cache.db)** | Queryable cache (see below) |
 
@@ -541,7 +539,7 @@ Apache 2.0 - See [LICENSE](LICENSE) file
 
 ## 🔗 Links
 
-- **[Latest Report](agents/benchmark_intelligence/reports/trending_benchmarks_20260411_000851.md)** ⭐
+- **[Latest Report](agents/benchmark_intelligence/reports/trending_benchmarks_20260529_231127.md)** ⭐
 - **[Feature Specification](specs/001-benchmark-intelligence/spec.md)** - Complete requirements
 - **[Benchmark Taxonomy](benchmark_taxonomy.md)** - Complete reference
 - **[Categories](categories.yaml)** - Category definitions
@@ -554,8 +552,8 @@ Apache 2.0 - See [LICENSE](LICENSE) file
 
 **Version**: 1.1.0
 **Status**: ✅ Production Ready
-**Last Run**: 2026-04-11
-**Models**: 167 | **Benchmarks**: 263 | **Categories**: 14
+**Last Run**: 2026-05-29
+**Models**: 164 | **Benchmarks**: 282 | **Categories**: 14
 **Features**: Vision AI extraction • Unicode normalization • AI validation • Multi-source parsing
 
 ---
