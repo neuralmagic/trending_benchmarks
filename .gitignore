@@ -1,6 +1,5 @@
 # Cache and data
 cache/
-*.db
 *.sqlite
 temp_images/
 outputs/
